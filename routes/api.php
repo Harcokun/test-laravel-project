@@ -6,6 +6,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\BookTypeController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,3 +57,19 @@ Route::post('/telephones', [TelephoneController::class, 'store']);
 Route::get('/telephones/{id}', [TelephoneController::class, 'show']);
 Route::put('/telephones/{id}', [TelephoneController::class, 'update']);
 Route::delete('/telephones/{id}', [TelephoneController::class, 'destroy']);
+
+Route::group([
+
+    'middleware' => 'api',
+    'prefix' => 'auth'
+
+], function ($router) {
+
+
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::get('me', [AuthController::class, 'me']);
+
+});

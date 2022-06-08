@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'api',
         'passwords' => 'users',
     ],
 
@@ -38,6 +38,10 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'api' => [
+            'driver' => 'jwt',
             'provider' => 'users',
         ],
     ],
@@ -107,22 +111,5 @@ return [
     */
 
     'password_timeout' => 10800,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Hashing Tokens
-    |--------------------------------------------------------------------------
-    |
-    | If you would like to hash your API tokens using SHA-256 hashing,
-    | you may set the hash option of your api guard configuration to true.
-    | The api guard is defined in your config/auth.php configuration file:
-    |
-    */
-
-    'api' => [
-        'driver' => 'token',
-        'provider' => 'users',
-        'hash' => true,
-    ],
 
 ];

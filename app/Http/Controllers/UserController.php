@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -44,7 +45,7 @@ class UserController extends Controller
             $user->firstname = $firstname;
             $user->lastname = $lastname;
             $user->email = $email;
-            $user->password = $password;
+            $user->password = Hash::make($password);
             $user->save();
             return response()->json($user, 200);
         }
@@ -101,7 +102,7 @@ class UserController extends Controller
                 $user->email = $email;
             }
             if(!empty($password)) {
-                $user->password = $password;
+                $user->password = Hash::make($password);
             }
             $user->touch();
             return response()->json($user, 200);
