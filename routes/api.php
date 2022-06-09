@@ -20,57 +20,35 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 // Route for Store
-Route::get('/stores', [StoreController::class, 'index']);
-Route::post('/stores', [StoreController::class, 'store']);
-Route::get('/stores/{id}', [StoreController::class, 'show']);
-Route::put('/stores/{id}', [StoreController::class, 'update']);
-Route::delete('/stores/{id}', [StoreController::class, 'destroy']);
+Route::apiResource('stores', StoreController::class);
 
 //Route for User
-Route::middleware(['auth'])->group(function() {
-    Route::get('/users', [UserController::class, 'index']);
-    Route::post('/users', [UserController::class, 'store']);
-    Route::get('/users/{id}', [UserController::class, 'show']);
-    Route::put('/users/{id}', [UserController::class, 'update']);
-    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+Route::middleware(['auth:api'])->group(function() {
+    Route::apiResource('users', UserController::class);
 });
 
 //Route for BookType
-Route::get('/book_types', [BookTypeController::class, 'index']);
-Route::post('/book_types', [BookTypeController::class, 'store']);
-Route::get('/book_types/{id}', [BookTypeController::class, 'show']);
-Route::put('/book_types/{id}', [BookTypeController::class, 'update']);
-Route::delete('/book_types/{id}', [BookTypeController::class, 'destroy']);
+Route::apiResource('book_types', BookTypeController::class);
 
 //Route for Book
-Route::get('/books', [BookController::class, 'index']);
-Route::post('/books', [BookController::class, 'store']);
-Route::get('/books/{id}', [BookController::class, 'show']);
-Route::put('/books/{id}', [BookController::class, 'update']);
-Route::delete('/books/{id}', [BookController::class, 'destroy']);
+Route::apiResource('books', BookController::class);
 
 //Route for Telephone
-Route::get('/telephones', [TelephoneController::class, 'index']);
-Route::post('/telephones', [TelephoneController::class, 'store']);
-Route::get('/telephones/{id}', [TelephoneController::class, 'show']);
-Route::put('/telephones/{id}', [TelephoneController::class, 'update']);
-Route::delete('/telephones/{id}', [TelephoneController::class, 'destroy']);
+Route::apiResource('telephones', telephoneController::class);
 
+//Route for authentication
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
 ], function ($router) {
-
-
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'me']);
-
 });
