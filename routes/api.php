@@ -25,7 +25,13 @@ use App\Http\Controllers\AuthController;
 // });
 
 // Route for Store
-Route::apiResource('stores', StoreController::class);
+Route::middleware(['auth:api'])->group(function() {
+    Route::get('stores', [StoreController::class, 'index'])->withoutMiddleware(['auth:api']);
+    Route::post('stores', [StoreController::class, 'store']);
+    Route::get('stores/{id}', [StoreController::class, 'show'])->withoutMiddleware(['auth:api']);
+    Route::put('stores/{id}', [StoreController::class, 'update']);
+    Route::delete('stores/{id}', [StoreController::class, 'destroy']);
+});
 
 //Route for User
 Route::middleware(['auth:api'])->group(function() {

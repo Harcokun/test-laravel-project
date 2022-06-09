@@ -25,6 +25,6 @@ class Store extends Model
     }
     public function owners()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withTimestamps();
     }
 }

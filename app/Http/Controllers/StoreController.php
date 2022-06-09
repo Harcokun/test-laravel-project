@@ -26,9 +26,11 @@ class StoreController extends Controller
     public function store(Request $request)
     {
         $name = $request->input('name');
+        $user = $request->user();
         $store = new Store();
         $store->name = $name;
         $store->save();
+        $store->owners()->attach($user->id);
         return response()->json($store, 200);
     }
 
@@ -40,7 +42,10 @@ class StoreController extends Controller
      */
     public function show($id)
     {
-        $store = Store::findOrFail($id);
+        $store = Store::where('id', $id)->firstOrFail();
+        if(!$store) {
+            return response()->json('Cannot find the store with this id', 404);
+        }
         return response()->json($store, 200);
     }
 
@@ -54,17 +59,21 @@ class StoreController extends Controller
     public function update(Request $request, $id)
     {
         $store = Store::findOrFail($id);
-        $name = $request->input('name');
-        if(empty($name)) {
-            return response()->json('The name should not be null', 400);
+        if(!$store) {
+            return response()->json('Cannot find the store with this id', 404);
         }
-        if($store) {
+        $unauthorized_response = $request->user()->cannot('update', $store);
+        if (!$unauthorized_response) {
+            $name = $request->input('name');
+            if(empty($name)) {
+                return response()->json('The name should not be null', 400);
+            }
             $store->name = $name;
             $store->touch();
             return response()->json($store, 200);
         }
         else {
-            return response()->json('Cannot find the store with this id', 404);
+            return response()->json('You are not authorized to update the others\' store', 401); 
         }
     }
 
@@ -77,12 +86,16 @@ class StoreController extends Controller
     public function destroy($id)
     {
         $store = Store::findOrFail($id);
-        if($store) {
+        if(!$store) {
+            return response()->json('Cannot find the store with this id', 404);
+        }
+        $unauthorized_response = $request->user()->cannot('update', $store);
+        if (!$unauthorized_response) {
             $store = Store::destroy($id);
             return response()->json('Successfully delete the store', 200);
         }
         else {
-            return response()->json('Cannot find the store with this id', 404);
+            return response()->json('You are not authorized to delete the others\' store', 401); 
         }
     }
 }
