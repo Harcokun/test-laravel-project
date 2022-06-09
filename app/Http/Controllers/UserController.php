@@ -63,6 +63,9 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
+        if(!$user) {
+            return response()->json('Cannot find the user with this ID', 404);
+        }
         return response()->json($user, 200);
     }
 
