@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -21,6 +22,27 @@ class AuthController extends Controller
 
   public function register(Request $request)
   {
+    $rules = [
+      'firstname' => ['required', 'string', 'max:255'],
+      'lastname' => ['required', 'string', 'max:255'],
+      'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+      'password' => ['required', 'string', 'min:8']
+    ];
+
+    $messages = [
+      'required' => 'The :attribute field is required.',
+      'unique' => 'The :attribute field must be unique.',
+      'min' => 'The :attribute field length should be at least 8.',
+      'max' => 'The :attribute field length should not be more than 255.',
+      'in' => 'The :attribute must be one of the following types: string',
+    ];
+
+    $validator = Validator::make($request->all(), $rules, $messages);
+
+    if ($validator->fails()) {
+      return response()->json($validator->messages(), 400);
+    }
+
     $user = User::create([
       'firstname' => $request->firstname,
       'lastname' => $request->lastname,
@@ -28,9 +50,11 @@ class AuthController extends Controller
       'password' => Hash::make($request->password),
     ]);
 
-    $token = auth()->login($user);
+    //$token = auth()->login($user);
+    $token = $user->createToken('Personal Access Token')->accessToken;
 
-    return $this->respondWithToken($token);
+    //return $this->respondWithToken($token);
+    return response()->json(['token' => $token, 'user' => $user], 200);
   }
 
   /**
@@ -38,15 +62,40 @@ class AuthController extends Controller
    *
    * @return \Illuminate\Http\JsonResponse
    */
-  public function login()
+  public function login(Request $request)
   {
-    $credentials = request(['email', 'password']);
-    //return response()->json($credentials);
-    if (!$token = auth()->attempt($credentials)) {
-      return response()->json(['error' => 'Unauthorized'], 401);
+    //$credentials = request(['email', 'password']);
+    // //return response()->json($credentials);
+    // if (!$token = auth()->attempt($credentials)) {
+    //   return response()->json(['error' => 'Unauthorized'], 401);
+    // }
+
+    // return $this->respondWithToken($token);
+
+    $rules = [
+      'email' => ['required', 'email'],
+      'password' => ['required'],
+    ];
+
+    $messages = [
+      'required' => 'The :attribute field is required.',
+    ];
+
+    $validator = Validator::make($request->all(), $rules, $messages);
+
+    if ($validator->fails()) {
+      return response()->json($validator->messages(), 400);
     }
 
-    return $this->respondWithToken($token);
+    $user = User::where('email', $request->email)->firstOrFail();
+    if(!$user) {
+      return response()->json('Cannot find the user with this email', 404);
+    }
+    if (!Hash::check($request->password, $user->password)) {
+      return response()->json('Password is incorrect', 400);
+    }
+    $token = $user->createToken('Personal Access Token')->accessToken;
+    return response()->json(['token' => $token, 'user' => $user], 200);
   }
 
   /**
@@ -56,7 +105,7 @@ class AuthController extends Controller
    */
   public function me()
   {
-    return response()->json(auth()->user());
+    return response()->json(Auth::user());
   }
 
   /**
@@ -64,10 +113,11 @@ class AuthController extends Controller
    *
    * @return \Illuminate\Http\JsonResponse
    */
-  public function logout()
+  public function logout(Request $request)
   {
-    auth()->logout();
-
+    $accessToken = auth()->user()->token();
+    $token= $request->user()->tokens->find($accessToken);
+    $token->revoke();
     return response()->json(['message' => 'Successfully logged out']);
   }
 

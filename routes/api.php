@@ -58,18 +58,18 @@ Route::delete('/books/{id}', [BookController::class, 'destroy']);
 // Route::put('/telephones/{id}', [TelephoneController::class, 'update']);
 // Route::delete('/telephones/{id}', [TelephoneController::class, 'destroy']);
 
-// Route::group([
+Route::group([
 
-//     'middleware' => 'api',
-//     'prefix' => 'auth'
+    'middleware' => 'api',
+    'prefix' => 'auth'
 
-// ], function ($router) {
+], function ($router) {
 
 
-//     Route::post('register', [AuthController::class, 'register']);
-//     Route::post('login', [AuthController::class, 'login']);
-//     Route::post('logout', [AuthController::class, 'logout']);
-//     Route::post('refresh', [AuthController::class, 'refresh']);
-//     Route::get('me', [AuthController::class, 'me']);
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::get('me', [AuthController::class, 'me']);
 
-// });
+});
