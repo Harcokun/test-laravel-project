@@ -6,6 +6,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\BookTypeController;
+use App\Http\Controllers\TelephoneController;
 use App\Http\Controllers\AuthController;
 
 /*
@@ -31,11 +32,13 @@ Route::put('/stores/{id}', [StoreController::class, 'update']);
 Route::delete('/stores/{id}', [StoreController::class, 'destroy']);
 
 //Route for User
-Route::get('/users', [UserController::class, 'index']);
-Route::post('/users', [UserController::class, 'store']);
-Route::get('/users/{id}', [UserController::class, 'show']);
-Route::put('/users/{id}', [UserController::class, 'update']);
-Route::delete('/users/{id}', [UserController::class, 'destroy']);
+Route::middleware(['auth'])->group(function() {
+    Route::get('/users', [UserController::class, 'index']);
+    Route::post('/users', [UserController::class, 'store']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+});
 
 //Route for BookType
 Route::get('/book_types', [BookTypeController::class, 'index']);
@@ -59,10 +62,8 @@ Route::put('/telephones/{id}', [TelephoneController::class, 'update']);
 Route::delete('/telephones/{id}', [TelephoneController::class, 'destroy']);
 
 Route::group([
-
     'middleware' => 'api',
     'prefix' => 'auth'
-
 ], function ($router) {
 
 
