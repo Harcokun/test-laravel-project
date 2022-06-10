@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Store;
+use App\Models\Book;
+use App\Models\Telephone;
 
 class StoreController extends Controller
 {
@@ -42,7 +44,7 @@ class StoreController extends Controller
      */
     public function show($id)
     {
-        $store = Store::where('id', $id)->firstOrFail();
+        $store = Store::find($id);
         if(!$store) {
             return response()->json('Cannot find the store with this id', 404);
         }
@@ -58,7 +60,7 @@ class StoreController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $store = Store::findOrFail($id);
+        $store = Store::find($id);
         if(!$store) {
             return response()->json('Cannot find the store with this id', 404);
         }
@@ -83,14 +85,27 @@ class StoreController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $store = Store::findOrFail($id);
+        $store = Store::find($id);
         if(!$store) {
             return response()->json('Cannot find the store with this id', 404);
         }
         $unauthorized_response = $request->user()->cannot('update', $store);
         if (!$unauthorized_response) {
+            if($store->books->isNotEmpty()) {
+                foreach($store->books as $book) {
+                    $book->store()->dissociate();
+                    $book->save();
+                }
+            }
+            if($store->telephones->isNotEmpty()) {
+                foreach($store->telephones as $telephone) {
+                    $telephone->store()->dissociate();
+                    $telephone->save();
+                }
+            }
+            $store->owners()->detach($request->user()->id);
             $store = Store::destroy($id);
             return response()->json('Successfully delete the store', 200);
         }
@@ -99,3 +114,5 @@ class StoreController extends Controller
         }
     }
 }
+
+
