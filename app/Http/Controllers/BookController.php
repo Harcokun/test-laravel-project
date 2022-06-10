@@ -32,16 +32,29 @@ class BookController extends Controller
         $book_type_id = $request->input('book_type_id');
         $store_id = $request->input('store_id');
         $book = new Book();
-        if(!empty($name) && ($price > 0) && BookType::findOrFail($book_type_id) && Store::findOrFail($store_id)) {
+        if(!empty($name) && ($price > 0) && BookType::find($book_type_id)) {
             $book->name = $name;
             $book->price = $price;
             $book->book_type_id = $book_type_id;
-            $book->store_id = $store_id;
+            $store = Store::find($store_id);
+            if($store) {
+                $unauthorized_response = $request->user()->cannot('create', [Book::class, $store]);
+                if(!$unauthorized_response) {
+                    $book->store_id = $store_id;
+                }
+                else {
+                    return response()->json('Cannot store a new book: You are not authorized to add a new book to the others\' store', 403);
+            
+                }
+            }
+            else {
+                return response()->json('Cannot store a new book: Invalid store_id'. 400);
+            }
             $book->save();
             return response()->json($book, 200);
         }
         else {
-            return response()->json('Cannot store a new book, please fill the correct input', 400);
+            return response()->json('Cannot store a new book: Incorrect input', 400);
         }
     }
 
@@ -66,7 +79,7 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $book = Book::findOrFail($id);
+        $book = Book::find($id);
         $name = $request->input('name');
         $price = $request->input('price');
         $book_type_id = $request->input('book_type_id');
@@ -78,10 +91,10 @@ class BookController extends Controller
             if(isset($price) && $price > 0) {
                 $book->price = $price;
             }
-            if(isset($book_type_id) && BookType::findOrFail($book_type_id)) {
+            if(isset($book_type_id) && BookType::find($book_type_id)) {
                 $book->book_type_id = $book_type_id;
             }
-            if(isset($store_id) && Store::findOrFail($store_id)) {
+            if(isset($store_id) && Store::find($store_id)) {
                 $book->store_id = $store_id;
             }
             $book->touch();

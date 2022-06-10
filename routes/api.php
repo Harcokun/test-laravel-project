@@ -42,7 +42,9 @@ Route::middleware(['auth:api'])->group(function() {
 Route::apiResource('book_types', BookTypeController::class);
 
 //Route for Book
-Route::apiResource('books', BookController::class);
+Route::middleware(['auth:api'])->group(function() {
+    Route::apiResource('books', BookController::class);
+});
 
 //Route for Telephone
 Route::apiResource('telephones', telephoneController::class);

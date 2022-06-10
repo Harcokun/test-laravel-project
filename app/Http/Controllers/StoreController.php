@@ -48,7 +48,7 @@ class StoreController extends Controller
         if(!$store) {
             return response()->json('Cannot find the store with this id', 404);
         }
-        return response()->json($store, 200);
+        return response()->json(['store' => $store, 'owner' => $store->owners], 200);
     }
 
     /**
@@ -82,6 +82,7 @@ class StoreController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
