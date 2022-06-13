@@ -29,7 +29,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('stores', [StoreController::class, 'index'])->withoutMiddleware(['auth:api']);
     Route::post('stores', [StoreController::class, 'store']);
     Route::get('stores/{id}', [StoreController::class, 'show'])->withoutMiddleware(['auth:api']);
-    Route::put('stores/{id}', [StoreController::class, 'update']);
+    Route::put('stores/{store}', [StoreController::class, 'update']);
     Route::delete('stores/{id}', [StoreController::class, 'destroy']);
 });
 

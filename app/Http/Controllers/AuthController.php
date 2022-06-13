@@ -34,7 +34,6 @@ class AuthController extends Controller
       'unique' => 'The :attribute field must be unique.',
       'min' => 'The :attribute field length should be at least 8.',
       'max' => 'The :attribute field length should not be more than 255.',
-      'in' => 'The :attribute must be one of the following types: string',
     ];
 
     $validator = Validator::make($request->all(), $rules, $messages);

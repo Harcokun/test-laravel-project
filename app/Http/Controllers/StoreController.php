@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Store;
 use App\Models\Book;
 use App\Models\Telephone;
 
 class StoreController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -27,11 +29,17 @@ class StoreController extends Controller
      */
     public function store(Request $request)
     {
-        $name = $request->input('name');
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255']
+        ]);
+      
+        $store = Store::create($validated);
+
+        // $name = $request->input('name');
         $user = $request->user();
-        $store = new Store();
-        $store->name = $name;
-        $store->save();
+        // $store = new Store();
+        // $store->name = $name;
+        // $store->save();
         $store->owners()->attach($user->id);
         return response()->json($store, 200);
     }
@@ -44,11 +52,14 @@ class StoreController extends Controller
      */
     public function show($id)
     {
-        $store = Store::find($id);
+        $store = Store::with('owners')->find($id);
         if(!$store) {
             return response()->json('Cannot find the store with this id', 404);
         }
-        return response()->json(['store' => $store, 'owner' => $store->owners], 200);
+        //$store->load('owners');
+        //$store->owners() //This is query
+        //$store->owners //This will list all owners
+        return response()->json(['store' => $store], 200);
     }
 
     /**
@@ -58,25 +69,21 @@ class StoreController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Store $store)
     {
-        $store = Store::find($id);
+        $this->authorize('update', $store); // Check authorization before validate for security, prevent from parameter guessing
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255']
+        ]);
+
+        /*$store = Store::find($id);
         if(!$store) {
             return response()->json('Cannot find the store with this id', 404);
-        }
-        $unauthorized_response = $request->user()->cannot('update', $store);
-        if (!$unauthorized_response) {
-            $name = $request->input('name');
-            if(empty($name)) {
-                return response()->json('The name should not be null', 400);
-            }
-            $store->name = $name;
-            $store->touch();
-            return response()->json($store, 200);
-        }
-        else {
-            return response()->json('You are not authorized to update the others\' store', 401); 
-        }
+        }*/
+        $name = $request->input('name');
+        $store->name = $name;
+        $store->save();
+        return response()->json($store, 200);
     }
 
     /**

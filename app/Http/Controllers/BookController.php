@@ -38,6 +38,8 @@ class BookController extends Controller
             $book->book_type_id = $book_type_id;
             $store = Store::find($store_id);
             if($store) {
+                // this->authorize('create', [Book::class, $store]);
+                // $book->store_id = $store_id;
                 $unauthorized_response = $request->user()->cannot('create', [Book::class, $store]);
                 if(!$unauthorized_response) {
                     $book->store_id = $store_id;

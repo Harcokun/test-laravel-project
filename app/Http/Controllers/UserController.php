@@ -123,8 +123,15 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::find($id);
         if($user) {
+            if($user->stores->isNotEmpty()) {
+                foreach($user->stores as $store) {
+                    $store->owners()->detach($id);
+                    //$user->stores()->detach($store()->id);
+                    $store->save();
+                }
+            }
             $user = User::destroy($id);
             return response()->json('Successfully delete the user', 200);
         }
