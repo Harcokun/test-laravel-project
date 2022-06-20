@@ -91,7 +91,7 @@ class AuthController extends Controller
       return response()->json('Cannot find the user with this email', 404);
     }
     if (!Hash::check($request->password, $user->password)) {
-      return response()->json('Password is incorrect', 400);
+      return response()->json('Password is incorrect', 403);
     }
     $token = $user->createToken('Personal Access Token')->accessToken;
     return response()->json(['token' => $token, 'user' => $user], 200);
